@@ -15,13 +15,31 @@ function leerArchivo(event) {
     reader.readAsText(file);
 }
 
+function procesarManual() {
+    const manualInput = document.getElementById('manualInput').value;
+    procesarDatos(manualInput);
+}
+
+function reiniciar() {
+    location.reload();
+}
+
 function procesarDatos(contenido) {
     const filas = contenido.split('\n').slice(1);
     const datos = filas.map(fila => parseFloat(fila.split(',')[1]));
-    generarGraficos(datos);
+
+    if (document.getElementById('histogramaCheck').checked) {
+        generarHistograma(datos);
+    }
+    if (document.getElementById('cajasCheck').checked) {
+        generarCajas(datos);
+    }
+    if (document.getElementById('controlCheck').checked) {
+        generarGraficoControl(datos);
+    }
 }
 
-function generarGraficos(datos) {
+function generarHistograma(datos) {
     const ctx = document.getElementById('histograma').getContext('2d');
     new Chart(ctx, {
         type: 'bar',
@@ -42,13 +60,13 @@ function generarGraficos(datos) {
             }
         }
     });
+}
 
+function generarCajas(datos) {
     Plotly.newPlot('cajasYBigotes', [{
         y: datos,
         type: 'box'
     }], { title: 'Cajas y Bigotes' });
-
-    generarGraficoControl(datos);
 }
 
 function generarGraficoControl(datos) {
