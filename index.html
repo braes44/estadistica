@@ -15,16 +15,23 @@
         <h1>Análisis Estadístico y Visualización</h1>
         <label for="fileInput">Sube un archivo CSV:</label>
         <input type="file" id="fileInput" accept=".csv">
+        
+        <h2>O ingresa los datos manualmente:</h2>
+        <textarea id="manualInput" rows="5" cols="40" placeholder="ID,Valor\n1,25\n2,30\n..."></textarea>
+        <button onclick="procesarManual()">Procesar Datos</button>
+        <button onclick="reiniciar()">Reiniciar</button>
         <button onclick="generarInforme()">Generar Informe PDF</button>
+
+        <h3>Selecciona las pruebas a realizar:</h3>
+        <label><input type="checkbox" id="histogramaCheck" checked> Histograma</label>
+        <label><input type="checkbox" id="cajasCheck" checked> Cajas y Bigotes</label>
+        <label><input type="checkbox" id="controlCheck" checked> Gráfico de Control</label>
 
         <div class="grafico">
             <canvas id="histograma"></canvas>
         </div>
         <div class="grafico" id="cajasYBigotes"></div>
         <div class="grafico" id="controlChart"></div>
-        <div class="grafico">
-            <canvas id="graficoIMR"></canvas>
-        </div>
     </div>
 
     <script src="scripts.js"></script>
