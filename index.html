@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aplicativo Estadístico</title>
+    <title>Aplicativo Estadístico Mejorado</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
 </head>
 <body>
     <div class="container">
-        <h1>Aplicativo Estadístico</h1>
+        <h1>Aplicativo Estadístico Mejorado</h1>
 
         <!-- Ingreso de Datos -->
         <div id="dataSection">
@@ -36,37 +36,22 @@
         <!-- Selección de Análisis -->
         <div id="analysisSection">
             <h2>Seleccionar Análisis</h2>
-            <div>
-                <label>
-                    <input type="checkbox" value="histogram" class="analysisCheckbox"> Histograma
-                </label>
-                <label>
-                    <input type="checkbox" value="boxplot" class="analysisCheckbox"> Cajas y Bigotes
-                </label>
-                <label>
-                    <input type="checkbox" value="centralTendency" class="analysisCheckbox"> Medidas de Tendencia Central
-                </label>
-                <label>
-                    <input type="checkbox" value="normality" class="analysisCheckbox"> Prueba de Normalidad
-                </label>
-                <label>
-                    <input type="checkbox" value="controlChart" class="analysisCheckbox"> Gráfico de Control
-                </label>
-                <label>
-                    <input type="checkbox" value="anova" class="analysisCheckbox"> ANOVA
-                </label>
-                <label>
-                    <input type="checkbox" value="varianceTest" class="analysisCheckbox"> Prueba de Varianzas Iguales
-                </label>
-                <label>
-                    <input type="checkbox" value="imrChart" class="analysisCheckbox"> Gráficos IMR
-                </label>
+            <div class="analysis-options">
+                <label><input type="checkbox" value="histogram" class="analysisCheckbox"> Histograma</label>
+                <label><input type="checkbox" value="boxplot" class="analysisCheckbox"> Cajas y Bigotes</label>
+                <label><input type="checkbox" value="centralTendency" class="analysisCheckbox"> Medidas de Tendencia Central</label>
+                <label><input type="checkbox" value="normality" class="analysisCheckbox"> Prueba de Normalidad</label>
+                <label><input type="checkbox" value="controlChart" class="analysisCheckbox"> Gráfico de Control</label>
+                <label><input type="checkbox" value="anova" class="analysisCheckbox"> ANOVA</label>
+                <label><input type="checkbox" value="varianceTest" class="analysisCheckbox"> Prueba de Varianzas Iguales</label>
+                <label><input type="checkbox" value="imrChart" class="analysisCheckbox"> Gráficos IMR</label>
             </div>
-            <div>
+            <div class="chart-title">
                 <label for="chartTitle">Título del Gráfico:</label>
                 <input type="text" id="chartTitle" placeholder="Ingrese el título del gráfico">
             </div>
             <button id="processData">Procesar</button>
+            <button id="resetAnalysis">Reiniciar</button>
         </div>
 
         <!-- Resultados -->
@@ -75,7 +60,6 @@
             <div id="results"></div>
             <canvas id="chart" class="hidden"></canvas>
             <button id="downloadPDF">Descargar PDF</button>
-            <button id="resetAnalysis">Reiniciar Análisis</button>
         </div>
     </div>
 
