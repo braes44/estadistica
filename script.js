@@ -3,6 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const addColumnButton = document.getElementById("addColumn");
     const addRowButton = document.getElementById("addRow");
     const processButton = document.getElementById("processData");
+    const resetButton = document.getElementById("resetAnalysis");
     const analysisCheckboxes = document.querySelectorAll(".analysisCheckbox");
     const chartTitleInput = document.getElementById("chartTitle");
     const resultsSection = document.getElementById("resultsSection");
@@ -12,7 +13,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let chartInstance;
 
-    // Agregar columna
     addColumnButton.addEventListener("click", () => {
         const headerRow = dataTable.querySelector("thead tr");
         const rows = dataTable.querySelectorAll("tbody tr");
@@ -29,7 +29,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // Agregar fila
     addRowButton.addEventListener("click", () => {
         const row = document.createElement("tr");
         const colCount = dataTable.querySelector("thead tr").children.length;
@@ -43,7 +42,6 @@ document.addEventListener("DOMContentLoaded", () => {
         dataTable.querySelector("tbody").appendChild(row);
     });
 
-    // Procesar datos
     processButton.addEventListener("click", () => {
         const data = [];
         const rows = dataTable.querySelectorAll("tbody tr");
@@ -87,26 +85,29 @@ document.addEventListener("DOMContentLoaded", () => {
                 case "histogram":
                     createHistogram(flatData, chartTitle);
                     break;
-                // Agregar casos para otros análisis
+                // Otros análisis
             }
         });
     });
 
-    // Descargar PDF
+    resetButton.addEventListener("click", () => {
+        document.querySelectorAll(".analysisCheckbox").forEach(checkbox => {
+            checkbox.checked = false;
+        });
+        chartCanvas.classList.add("hidden");
+        resultsSection.classList.add("hidden");
+    });
+
     downloadPDFButton.addEventListener("click", () => {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
 
-        const now = new Date();
-        const dateStr = now.toLocaleDateString();
-        const timeStr = now.toLocaleTimeString();
+        doc.text("Reporte Estadístico", 10, 10);
+        doc.text("Gráfico generado:", 10, 20);
 
-        doc.text(`Reporte Estadístico`, 10, 10);
-        doc.text(`Fecha: ${dateStr}`, 10, 20);
-        doc.text(`Hora: ${timeStr}`, 10, 30);
-
-        const chartImage = chartCanvas.toDataURL("image/png");
-        doc.addImage(chartImage, "PNG", 10, 40, 180, 100);
+        if (chartCanvas && chartCanvas.toDataURL) {
+            doc.addImage(chartCanvas.toDataURL(), "PNG", 10, 30, 180, 100);
+        }
 
         doc.save("reporte_estadistico.pdf");
     });
