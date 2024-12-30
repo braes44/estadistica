@@ -3,126 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aplicativo Estadístico Amigable</title>
+    <title>Aplicativo Estadístico</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="https://cdn.jsdelivr.net/npm/handsontable@12.1.0/dist/handsontable.full.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/handsontable@12.1.0/dist/handsontable.full.min.css">
 </head>
 <body>
     <div class="container">
-        <h1>Aplicativo Estadístico Amigable</h1>
+        <h1>Aplicativo Estadístico</h1>
 
-        <!-- Tabla interactiva para ingresar datos -->
-        <h2>Ingresar Datos Manualmente</h2>
-        <div id="dataTable" class="hot"></div>
-        <button id="processTable" class="btn">Procesar Datos</button>
+        <!-- Tabla Interactiva -->
+        <div id="dataSection">
+            <h2>Ingresar Datos</h2>
+            <table id="dataTable">
+                <thead>
+                    <tr>
+                        <th>Columna 1</th>
+                        <th>Columna 2</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td contenteditable="true"></td>
+                        <td contenteditable="true"></td>
+                    </tr>
+                </tbody>
+            </table>
+            <button id="addColumn">Agregar Columna</button>
+            <button id="addRow">Agregar Fila</button>
+        </div>
 
-        <!-- Formulario para cargar archivo Excel o CSV -->
-        <h2>Subir Archivo</h2>
-        <form id="uploadForm" enctype="multipart/form-data">
-            <label for="fileInput">Subir archivo Excel o CSV:</label>
-            <input type="file" id="fileInput" name="file" accept=".xlsx, .csv">
-            <button type="submit" class="btn">Subir y Procesar</button>
-        </form>
+        <!-- Selección de Pruebas Estadísticas -->
+        <div id="testSection">
+            <h2>Seleccionar Prueba Estadística</h2>
+            <select id="statTest">
+                <option value="mean">Media</option>
+                <option value="median">Mediana</option>
+                <option value="mode">Moda</option>
+                <option value="kurtosis">Curtosis</option>
+                <option value="skewness">Asimetría</option>
+            </select>
+            <button id="processData">Procesar Datos</button>
+        </div>
 
         <!-- Resultados -->
-        <div id="results" class="hidden">
+        <div id="resultsSection" class="hidden">
             <h2>Resultados</h2>
-            <div id="stats"></div>
-            <div id="plots">
-                <h3>Gráficos</h3>
-                <img id="histogram" alt="Histograma">
-                <img id="boxplot" alt="Gráfico de Caja y Bigotes">
-                <img id="individualValues" alt="Gráfico de Valores Individuales">
-                <img id="imrChart" alt="Gráfico IMR">
-            </div>
+            <div id="results"></div>
         </div>
     </div>
 
-    <script>
-        // Configurar tabla interactiva con Handsontable
-        const container = document.getElementById('dataTable');
-        const hot = new Handsontable(container, {
-            data: [
-                ['', ''], // Placeholder inicial
-            ],
-            rowHeaders: true,
-            colHeaders: ['Columna 1', 'Columna 2'],
-            minSpareRows: 1,
-            contextMenu: true,
-            licenseKey: 'non-commercial-and-evaluation'
-        });
-
-        // Procesar datos de la tabla
-        document.getElementById('processTable').addEventListener('click', async () => {
-            const tableData = hot.getData();
-            const headers = hot.getColHeader();
-
-            // Convertir a formato JSON
-            const jsonData = {
-                data: {}
-            };
-            headers.forEach((header, colIndex) => {
-                jsonData.data[header] = tableData.map(row => row[colIndex]).filter(value => value !== null && value !== '');
-            });
-
-            try {
-                const response = await fetch('http://127.0.0.1:5000/calculate', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(jsonData)
-                });
-
-                if (!response.ok) {
-                    throw new Error('Error al procesar los datos');
-                }
-
-                const result = await response.json();
-
-                // Mostrar resultados
-                document.getElementById('results').classList.remove('hidden');
-
-                const statsDiv = document.getElementById('stats');
-                statsDiv.innerHTML = `<pre>${JSON.stringify(result, null, 2)}</pre>`;
-
-                // Mostrar gráficos
-                document.getElementById('histogram').src = `data:image/png;base64,${result.plots.histogram}`;
-                document.getElementById('boxplot').src = `data:image/png;base64,${result.plots.boxplot}`;
-                document.getElementById('individualValues').src = `data:image/png;base64,${result.plots.individual_values}`;
-                document.getElementById('imrChart').src = `data:image/png;base64,${result.plots.imr_chart}`;
-
-            } catch (error) {
-                alert('Error: ' + error.message);
-            }
-        });
-
-        // Subir archivo
-        document.getElementById('uploadForm').addEventListener('submit', async (event) => {
-            event.preventDefault();
-
-            const fileInput = document.getElementById('fileInput');
-            const formData = new FormData();
-            formData.append('file', fileInput.files[0]);
-
-            try {
-                const response = await fetch('http://127.0.0.1:5000/upload', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                if (!response.ok) {
-                    throw new Error('Error al subir el archivo');
-                }
-
-                const result = await response.json();
-
-                alert('Archivo procesado correctamente. Vista previa: ' + JSON.stringify(result.preview, null, 2));
-            } catch (error) {
-                alert('Error: ' + error.message);
-            }
-        });
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
