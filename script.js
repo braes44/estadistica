@@ -3,22 +3,25 @@ document.addEventListener("DOMContentLoaded", () => {
     const addColumnButton = document.getElementById("addColumn");
     const addRowButton = document.getElementById("addRow");
     const processButton = document.getElementById("processData");
-    const statTest = document.getElementById("statTest");
+    const analysisCheckboxes = document.querySelectorAll(".analysisCheckbox");
+    const chartTitleInput = document.getElementById("chartTitle");
     const resultsSection = document.getElementById("resultsSection");
     const resultsDiv = document.getElementById("results");
+    const chartCanvas = document.getElementById("chart");
+    const downloadPDFButton = document.getElementById("downloadPDF");
 
-    // Add a new column
+    let chartInstance;
+
+    // Agregar columna
     addColumnButton.addEventListener("click", () => {
         const headerRow = dataTable.querySelector("thead tr");
         const rows = dataTable.querySelectorAll("tbody tr");
         const colIndex = headerRow.children.length + 1;
 
-        // Add header
         const newHeader = document.createElement("th");
         newHeader.textContent = `Columna ${colIndex}`;
         headerRow.appendChild(newHeader);
 
-        // Add cells
         rows.forEach(row => {
             const newCell = document.createElement("td");
             newCell.contentEditable = "true";
@@ -26,7 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // Add a new row
+    // Agregar fila
     addRowButton.addEventListener("click", () => {
         const row = document.createElement("tr");
         const colCount = dataTable.querySelector("thead tr").children.length;
@@ -40,7 +43,7 @@ document.addEventListener("DOMContentLoaded", () => {
         dataTable.querySelector("tbody").appendChild(row);
     });
 
-    // Process data
+    // Procesar datos
     processButton.addEventListener("click", () => {
         const data = [];
         const rows = dataTable.querySelectorAll("tbody tr");
@@ -60,36 +63,71 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         const flatData = data.flat();
-        const test = statTest.value;
-        let result;
+        const selectedAnalyses = Array.from(analysisCheckboxes)
+            .filter(checkbox => checkbox.checked)
+            .map(checkbox => checkbox.value);
 
-        switch (test) {
-            case "mean":
-                result = flatData.reduce((a, b) => a + b, 0) / flatData.length;
-                break;
-            case "median":
-                flatData.sort((a, b) => a - b);
-                const mid = Math.floor(flatData.length / 2);
-                result = flatData.length % 2 !== 0 ? flatData[mid] : (flatData[mid - 1] + flatData[mid]) / 2;
-                break;
-            case "mode":
-                const freq = {};
-                flatData.forEach(num => freq[num] = (freq[num] || 0) + 1);
-                result = Object.keys(freq).reduce((a, b) => freq[a] > freq[b] ? a : b);
-                break;
-            case "kurtosis":
-                const mean = flatData.reduce((a, b) => a + b, 0) / flatData.length;
-                const variance = flatData.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / flatData.length;
-                result = flatData.reduce((a, b) => a + Math.pow((b - mean) / Math.sqrt(variance), 4), 0) / flatData.length - 3;
-                break;
-            case "skewness":
-                const m = flatData.reduce((a, b) => a + b, 0) / flatData.length;
-                const sd = Math.sqrt(flatData.reduce((a, b) => a + Math.pow(b - m, 2), 0) / flatData.length);
-                result = flatData.reduce((a, b) => a + Math.pow((b - m) / sd, 3), 0) / flatData.length;
-                break;
+        if (selectedAnalyses.length === 0) {
+            alert("Por favor, selecciona al menos un análisis.");
+            return;
         }
 
+        const chartTitle = chartTitleInput.value || "Gráfico sin título";
+
         resultsSection.classList.remove("hidden");
-        resultsDiv.textContent = `Resultado (${test}): ${result}`;
+        resultsDiv.textContent = "";
+        chartCanvas.classList.add("hidden");
+
+        if (chartInstance) {
+            chartInstance.destroy();
+        }
+
+        selectedAnalyses.forEach(analysis => {
+            switch (analysis) {
+                case "histogram":
+                    createHistogram(flatData, chartTitle);
+                    break;
+                // Agregar casos para otros análisis
+            }
+        });
     });
+
+    // Descargar PDF
+    downloadPDFButton.addEventListener("click", () => {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        const now = new Date();
+        const dateStr = now.toLocaleDateString();
+        const timeStr = now.toLocaleTimeString();
+
+        doc.text(`Reporte Estadístico`, 10, 10);
+        doc.text(`Fecha: ${dateStr}`, 10, 20);
+        doc.text(`Hora: ${timeStr}`, 10, 30);
+
+        const chartImage = chartCanvas.toDataURL("image/png");
+        doc.addImage(chartImage, "PNG", 10, 40, 180, 100);
+
+        doc.save("reporte_estadistico.pdf");
+    });
+
+    function createHistogram(data, title) {
+        const labels = Array.from(new Set(data)).sort((a, b) => a - b);
+        const frequencies = labels.map(label => data.filter(value => value === label).length);
+
+        chartCanvas.classList.remove("hidden");
+        chartInstance = new Chart(chartCanvas, {
+            type: "bar",
+            data: {
+                labels,
+                datasets: [{
+                    label: title,
+                    data: frequencies,
+                    backgroundColor: "rgba(75, 192, 192, 0.6)",
+                    borderColor: "rgba(75, 192, 192, 1)",
+                    borderWidth: 1
+                }]
+            }
+        });
+    }
 });
