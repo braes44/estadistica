@@ -1,3 +1,4 @@
+// script.js
 document.addEventListener("DOMContentLoaded", () => {
     const dataTable = document.getElementById("dataTable");
     const addColumnButton = document.getElementById("addColumn");
@@ -13,6 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let chartInstance;
 
+    // Agregar columna
     addColumnButton.addEventListener("click", () => {
         const headerRow = dataTable.querySelector("thead tr");
         const rows = dataTable.querySelectorAll("tbody tr");
@@ -29,6 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
+    // Agregar fila
     addRowButton.addEventListener("click", () => {
         const row = document.createElement("tr");
         const colCount = dataTable.querySelector("thead tr").children.length;
@@ -42,6 +45,7 @@ document.addEventListener("DOMContentLoaded", () => {
         dataTable.querySelector("tbody").appendChild(row);
     });
 
+    // Procesar datos
     processButton.addEventListener("click", () => {
         const data = [];
         const rows = dataTable.querySelectorAll("tbody tr");
@@ -85,33 +89,39 @@ document.addEventListener("DOMContentLoaded", () => {
                 case "histogram":
                     createHistogram(flatData, chartTitle);
                     break;
-                // Otros análisis
+                // Otros análisis pueden añadirse aquí
             }
         });
     });
 
+    // Reiniciar análisis
     resetButton.addEventListener("click", () => {
-        document.querySelectorAll(".analysisCheckbox").forEach(checkbox => {
-            checkbox.checked = false;
-        });
-        chartCanvas.classList.add("hidden");
+        analysisCheckboxes.forEach(checkbox => (checkbox.checked = false));
         resultsSection.classList.add("hidden");
+        chartCanvas.classList.add("hidden");
+        if (chartInstance) chartInstance.destroy();
     });
 
+    // Descargar PDF
     downloadPDFButton.addEventListener("click", () => {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
 
-        doc.text("Reporte Estadístico", 10, 10);
-        doc.text("Gráfico generado:", 10, 20);
+        const now = new Date();
+        const dateStr = now.toLocaleDateString();
+        const timeStr = now.toLocaleTimeString();
 
-        if (chartCanvas && chartCanvas.toDataURL) {
-            doc.addImage(chartCanvas.toDataURL(), "PNG", 10, 30, 180, 100);
-        }
+        doc.text("Reporte Estadístico", 10, 10);
+        doc.text(`Fecha: ${dateStr}`, 10, 20);
+        doc.text(`Hora: ${timeStr}`, 10, 30);
+
+        const chartImage = chartCanvas.toDataURL("image/png");
+        doc.addImage(chartImage, "PNG", 10, 40, 180, 100);
 
         doc.save("reporte_estadistico.pdf");
     });
 
+    // Crear histograma
     function createHistogram(data, title) {
         const labels = Array.from(new Set(data)).sort((a, b) => a - b);
         const frequencies = labels.map(label => data.filter(value => value === label).length);
@@ -121,14 +131,16 @@ document.addEventListener("DOMContentLoaded", () => {
             type: "bar",
             data: {
                 labels,
-                datasets: [{
-                    label: title,
-                    data: frequencies,
-                    backgroundColor: "rgba(75, 192, 192, 0.6)",
-                    borderColor: "rgba(75, 192, 192, 1)",
-                    borderWidth: 1
-                }]
-            }
+                datasets: [
+                    {
+                        label: title,
+                        data: frequencies,
+                        backgroundColor: "rgba(75, 192, 192, 0.6)",
+                        borderColor: "rgba(75, 192, 192, 1)",
+                        borderWidth: 1,
+                    },
+                ],
+            },
         });
     }
 });
