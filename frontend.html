@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplicativo Estadístico</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Aplicativo Estadístico</h1>
+        
+        <!-- Formulario para JSON Manual -->
+        <form id="dataForm">
+            <label for="dataInput">Ingrese datos en formato JSON:</label>
+            <textarea id="dataInput" rows="10" placeholder='{"data": {"col1": [1, 2, 3], "col2": [4, 5, 6]}, "anova_factor": ["A", "A", "B"]}'></textarea>
+            <button type="submit">Calcular</button>
+        </form>
+
+        <!-- Formulario para cargar archivo Excel -->
+        <form id="uploadForm" enctype="multipart/form-data">
+            <label for="fileInput">Subir archivo Excel:</label>
+            <input type="file" id="fileInput" name="file" accept=".xlsx">
+            <button type="submit">Subir y procesar</button>
+        </form>
+
+        <div id="results" class="hidden">
+            <h2>Resultados</h2>
+            <div id="stats"></div>
+            <div id="plots">
+                <h3>Gráficos</h3>
+                <img id="histogram" alt="Histograma">
+                <img id="boxplot" alt="Gráfico de Caja y Bigotes">
+                <img id="individualValues" alt="Gráfico de Valores Individuales">
+                <img id="imrChart" alt="Gráfico IMR">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('dataForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const dataInput = document.getElementById('dataInput').value;
+            try {
+                const response = await fetch('http://127.0.0.1:5000/calculate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: dataInput
+                });
+
+                if (!response.ok) {
+                    throw new Error('Error al procesar los datos');
+                }
+
+                const result = await response.json();
+
+                // Mostrar resultados
+                document.getElementById('results').classList.remove('hidden');
+
+                const statsDiv = document.getElementById('stats');
+                statsDiv.innerHTML = `<pre>${JSON.stringify(result, null, 2)}</pre>`;
+
+                // Mostrar gráficos
+                document.getElementById('histogram').src = `data:image/png;base64,${result.plots.histogram}`;
+                document.getElementById('boxplot').src = `data:image/png;base64,${result.plots.boxplot}`;
+                document.getElementById('individualValues').src = `data:image/png;base64,${result.plots.individual_values}`;
+                document.getElementById('imrChart').src = `data:image/png;base64,${result.plots.imr_chart}`;
+
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        });
+
+        document.getElementById('uploadForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const fileInput = document.getElementById('fileInput');
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            try {
+                const response = await fetch('http://127.0.0.1:5000/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error('Error al subir el archivo');
+                }
+
+                const result = await response.json();
+
+                alert('Archivo procesado correctamente. Vista previa: ' + JSON.stringify(result.preview, null, 2));
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        });
+    </script>
+</body>
+</html>
