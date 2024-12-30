@@ -5,12 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aplicativo Estadístico</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
 </head>
 <body>
     <div class="container">
         <h1>Aplicativo Estadístico</h1>
 
-        <!-- Tabla Interactiva -->
+        <!-- Ingreso de Datos -->
         <div id="dataSection">
             <h2>Ingresar Datos</h2>
             <table id="dataTable">
@@ -31,23 +33,48 @@
             <button id="addRow">Agregar Fila</button>
         </div>
 
-        <!-- Selección de Pruebas Estadísticas -->
-        <div id="testSection">
-            <h2>Seleccionar Prueba Estadística</h2>
-            <select id="statTest">
-                <option value="mean">Media</option>
-                <option value="median">Mediana</option>
-                <option value="mode">Moda</option>
-                <option value="kurtosis">Curtosis</option>
-                <option value="skewness">Asimetría</option>
-            </select>
-            <button id="processData">Procesar Datos</button>
+        <!-- Selección de Análisis -->
+        <div id="analysisSection">
+            <h2>Seleccionar Análisis</h2>
+            <div>
+                <label>
+                    <input type="checkbox" value="histogram" class="analysisCheckbox"> Histograma
+                </label>
+                <label>
+                    <input type="checkbox" value="boxplot" class="analysisCheckbox"> Cajas y Bigotes
+                </label>
+                <label>
+                    <input type="checkbox" value="centralTendency" class="analysisCheckbox"> Medidas de Tendencia Central
+                </label>
+                <label>
+                    <input type="checkbox" value="normality" class="analysisCheckbox"> Prueba de Normalidad
+                </label>
+                <label>
+                    <input type="checkbox" value="controlChart" class="analysisCheckbox"> Gráfico de Control
+                </label>
+                <label>
+                    <input type="checkbox" value="anova" class="analysisCheckbox"> ANOVA
+                </label>
+                <label>
+                    <input type="checkbox" value="varianceTest" class="analysisCheckbox"> Prueba de Varianzas Iguales
+                </label>
+                <label>
+                    <input type="checkbox" value="imrChart" class="analysisCheckbox"> Gráficos IMR
+                </label>
+            </div>
+            <div>
+                <label for="chartTitle">Título del Gráfico:</label>
+                <input type="text" id="chartTitle" placeholder="Ingrese el título del gráfico">
+            </div>
+            <button id="processData">Procesar</button>
         </div>
 
         <!-- Resultados -->
         <div id="resultsSection" class="hidden">
             <h2>Resultados</h2>
             <div id="results"></div>
+            <canvas id="chart" class="hidden"></canvas>
+            <button id="downloadPDF">Descargar PDF</button>
         </div>
     </div>
 
