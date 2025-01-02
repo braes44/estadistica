@@ -1,88 +1,82 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const fileInput = document.getElementById('fileInput');
-    fileInput.addEventListener('change', leerArchivo);
-});
+document.addEventListener("DOMContentLoaded", () => {
+    const fileInput = document.getElementById("fileInput");
+    const processButton = document.getElementById("processData");
+    const analysisType = document.getElementById("analysisType");
+    const chartCanvas = document.getElementById("chart");
+    const resultsSection = document.getElementById("resultsSection");
+    const downloadPDFButton = document.getElementById("downloadPDF");
 
-function leerArchivo(event) {
-    const file = event.target.files[0];
-    const reader = new FileReader();
+    let chartInstance;
 
-    reader.onload = function(e) {
-        const contenido = e.target.result;
-        procesarDatos(contenido);
-    };
+    // Leer archivo CSV
+    fileInput.addEventListener("change", (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
 
-    reader.readAsText(file);
-}
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const text = e.target.result;
+            const data = parseCSV(text);
+            processData(data);
+        };
+        reader.readAsText(file);
+    });
 
-function procesarManual() {
-    const manualInput = document.getElementById('manualInput').value;
-    procesarDatos(manualInput);
-}
+    // Procesar datos
+    processButton.addEventListener("click", () => {
+        const selectedAnalysis = analysisType.value;
 
-function reiniciar() {
-    location.reload();
-}
+        if (!selectedAnalysis) {
+            alert("Por favor, selecciona un análisis.");
+            return;
+        }
 
-function procesarDatos(contenido) {
-    const filas = contenido.split('\n').slice(1);
-    const datos = filas.map(fila => parseFloat(fila.split(',')[1]));
+        resultsSection.classList.remove("hidden");
 
-    if (document.getElementById('histogramaCheck').checked) {
-        generarHistograma(datos);
-    }
-    if (document.getElementById('cajasCheck').checked) {
-        generarCajas(datos);
-    }
-    if (document.getElementById('controlCheck').checked) {
-        generarGraficoControl(datos);
-    }
-}
+        if (chartInstance) {
+            chartInstance.destroy();
+        }
 
-function generarHistograma(datos) {
-    const ctx = document.getElementById('histograma').getContext('2d');
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: datos,
-            datasets: [{
-                label: 'Histograma',
-                data: datos,
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                borderColor: 'rgba(75, 192, 192, 1)',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                y: { beginAtZero: true }
-            }
+        switch (selectedAnalysis) {
+            case "histogram":
+                createHistogram();
+                break;
+            case "boxplot":
+                createBoxPlot();
+                break;
+            // Agregar más análisis
         }
     });
-}
 
-function generarCajas(datos) {
-    Plotly.newPlot('cajasYBigotes', [{
-        y: datos,
-        type: 'box'
-    }], { title: 'Cajas y Bigotes' });
-}
+    // Descargar PDF
+    downloadPDFButton.addEventListener("click", () => {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
 
-function generarGraficoControl(datos) {
-    const media = jStat.mean(datos);
-    const desviacion = jStat.stdev(datos);
-    const limites = [media - 3 * desviacion, media + 3 * desviacion];
+        const now = new Date();
+        const dateStr = now.toLocaleDateString();
+        const timeStr = now.toLocaleTimeString();
 
-    Plotly.newPlot('controlChart', [{
-        y: datos,
-        type: 'scatter',
-        mode: 'lines+markers'
-    }], {
-        title: 'Gráfico de Control',
-        shapes: [
-            { type: 'line', y0: limites[0], y1: limites[0], x0: 0, x1: datos.length, line: { color: 'red' } },
-            { type: 'line', y0: limites[1], y1: limites[1], x0: 0, x1: datos.length, line: { color: 'red' } }
-        ]
+        doc.text("Reporte Estadístico", 10, 10);
+        doc.text(`Fecha: ${dateStr}`, 10, 20);
+        doc.text(`Hora: ${timeStr}`, 10, 30);
+
+        const chartImage = chartCanvas.toDataURL("image/png");
+        doc.addImage(chartImage, "PNG", 10, 40, 180, 100);
+
+        doc.save("reporte_estadistico.pdf");
     });
-}
+
+    function parseCSV(csvText) {
+        const rows = csvText.split("\n");
+        return rows.map(row => row.split(",").map(Number));
+    }
+
+    function createHistogram() {
+        // Lógica para crear un histograma
+    }
+
+    function createBoxPlot() {
+        // Lógica para crear un boxplot
+    }
+});
