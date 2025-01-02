@@ -1,39 +1,45 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Análisis Estadístico y Gráficos</title>
+    <title>Aplicación Estadística</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.20.0/plotly.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jstat"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
 </head>
 <body>
     <div class="container">
-        <h1>Análisis Estadístico y Visualización</h1>
-        <label for="fileInput">Sube un archivo CSV:</label>
-        <input type="file" id="fileInput" accept=".csv">
-        
-        <h2>O ingresa los datos manualmente:</h2>
-        <textarea id="manualInput" rows="5" cols="40" placeholder="ID,Valor\n1,25\n2,30\n..."></textarea>
-        <button onclick="procesarManual()">Procesar Datos</button>
-        <button onclick="reiniciar()">Reiniciar</button>
-        <button onclick="generarInforme()">Generar Informe PDF</button>
+        <h1>Aplicación Estadística</h1>
 
-        <h3>Selecciona las pruebas a realizar:</h3>
-        <label><input type="checkbox" id="histogramaCheck" checked> Histograma</label>
-        <label><input type="checkbox" id="cajasCheck" checked> Cajas y Bigotes</label>
-        <label><input type="checkbox" id="controlCheck" checked> Gráfico de Control</label>
-
-        <div class="grafico">
-            <canvas id="histograma"></canvas>
+        <!-- Subida de Datos -->
+        <div id="dataUpload">
+            <h2>Cargar Datos</h2>
+            <input type="file" id="fileInput" accept=".csv">
         </div>
-        <div class="grafico" id="cajasYBigotes"></div>
-        <div class="grafico" id="controlChart"></div>
+
+        <!-- Selección de Análisis -->
+        <div id="analysisSection">
+            <h2>Seleccionar Análisis</h2>
+            <select id="analysisType">
+                <option value="histogram">Histograma</option>
+                <option value="boxplot">Cajas y Bigotes</option>
+                <option value="centralTendency">Medidas de Tendencia Central</option>
+                <option value="normality">Prueba de Normalidad</option>
+                <option value="controlChart">Gráfico de Control</option>
+                <option value="anova">ANOVA</option>
+            </select>
+            <button id="processData">Procesar</button>
+        </div>
+
+        <!-- Resultados -->
+        <div id="resultsSection" class="hidden">
+            <h2>Resultados</h2>
+            <canvas id="chart"></canvas>
+            <button id="downloadPDF">Descargar PDF</button>
+        </div>
     </div>
 
-    <script src="scripts.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
