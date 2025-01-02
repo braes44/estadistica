@@ -3,43 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aplicación Estadística</title>
+    <title>Análisis Estadístico</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
 </head>
 <body>
     <div class="container">
-        <h1>Aplicación Estadística</h1>
-
-        <!-- Subida de Datos -->
-        <div id="dataUpload">
-            <h2>Cargar Datos</h2>
-            <input type="file" id="fileInput" accept=".csv">
-        </div>
-
-        <!-- Selección de Análisis -->
-        <div id="analysisSection">
-            <h2>Seleccionar Análisis</h2>
-            <select id="analysisType">
-                <option value="histogram">Histograma</option>
-                <option value="boxplot">Cajas y Bigotes</option>
-                <option value="centralTendency">Medidas de Tendencia Central</option>
-                <option value="normality">Prueba de Normalidad</option>
-                <option value="controlChart">Gráfico de Control</option>
-                <option value="anova">ANOVA</option>
-            </select>
-            <button id="processData">Procesar</button>
-        </div>
-
-        <!-- Resultados -->
-        <div id="resultsSection" class="hidden">
+        <h1>Análisis Estadístico</h1>
+        <textarea id="dataInput" rows="5" placeholder="Ingrese los datos separados por comas, ej: 12.5, 13.0, 11.8"></textarea>
+        <button onclick="processData()">Procesar Datos</button>
+        <div id="results" style="display:none;">
             <h2>Resultados</h2>
-            <canvas id="chart"></canvas>
-            <button id="downloadPDF">Descargar PDF</button>
+            <div id="stats"></div>
+            <canvas id="histogram" width="400" height="300"></canvas>
+            <canvas id="boxplot" width="400" height="300"></canvas>
         </div>
     </div>
-
-    <script src="script.js"></script>
+    <script src="scripts.js"></script>
 </body>
 </html>
