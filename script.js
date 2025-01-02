@@ -1,82 +1,55 @@
-document.addEventListener("DOMContentLoaded", () => {
-    const fileInput = document.getElementById("fileInput");
-    const processButton = document.getElementById("processData");
-    const analysisType = document.getElementById("analysisType");
-    const chartCanvas = document.getElementById("chart");
-    const resultsSection = document.getElementById("resultsSection");
-    const downloadPDFButton = document.getElementById("downloadPDF");
+function processData() {
+    const input = document.getElementById("dataInput").value;
+    const data = input.split(",").map(Number).filter(n => !isNaN(n));
 
-    let chartInstance;
-
-    // Leer archivo CSV
-    fileInput.addEventListener("change", (event) => {
-        const file = event.target.files[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const text = e.target.result;
-            const data = parseCSV(text);
-            processData(data);
-        };
-        reader.readAsText(file);
-    });
-
-    // Procesar datos
-    processButton.addEventListener("click", () => {
-        const selectedAnalysis = analysisType.value;
-
-        if (!selectedAnalysis) {
-            alert("Por favor, selecciona un análisis.");
-            return;
-        }
-
-        resultsSection.classList.remove("hidden");
-
-        if (chartInstance) {
-            chartInstance.destroy();
-        }
-
-        switch (selectedAnalysis) {
-            case "histogram":
-                createHistogram();
-                break;
-            case "boxplot":
-                createBoxPlot();
-                break;
-            // Agregar más análisis
-        }
-    });
-
-    // Descargar PDF
-    downloadPDFButton.addEventListener("click", () => {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-
-        const now = new Date();
-        const dateStr = now.toLocaleDateString();
-        const timeStr = now.toLocaleTimeString();
-
-        doc.text("Reporte Estadístico", 10, 10);
-        doc.text(`Fecha: ${dateStr}`, 10, 20);
-        doc.text(`Hora: ${timeStr}`, 10, 30);
-
-        const chartImage = chartCanvas.toDataURL("image/png");
-        doc.addImage(chartImage, "PNG", 10, 40, 180, 100);
-
-        doc.save("reporte_estadistico.pdf");
-    });
-
-    function parseCSV(csvText) {
-        const rows = csvText.split("\n");
-        return rows.map(row => row.split(",").map(Number));
+    if (data.length === 0) {
+        alert("Por favor, ingrese datos válidos.");
+        return;
     }
 
-    function createHistogram() {
-        // Lógica para crear un histograma
-    }
+    document.getElementById("results").style.display = "block";
 
-    function createBoxPlot() {
-        // Lógica para crear un boxplot
-    }
-});
+    // Cálculos estadísticos
+    const mean = (data.reduce((a, b) => a + b, 0) / data.length).toFixed(2);
+    const sortedData = [...data].sort((a, b) => a - b);
+    const median = (sortedData.length % 2 === 0)
+        ? ((sortedData[sortedData.length / 2 - 1] + sortedData[sortedData.length / 2]) / 2).toFixed(2)
+        : sortedData[Math.floor(sortedData.length / 2)];
+    const mode = data.sort((a, b) =>
+        data.filter(v => v === a).length - data.filter(v => v === b).length
+    ).pop();
+    const variance = (data.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / data.length).toFixed(2);
+    const stdDev = Math.sqrt(variance).toFixed(2);
+
+    document.getElementById("stats").innerHTML = `
+        <table>
+            <tr><th>Media</th><th>Mediana</th><th>Moda</th><th>Varianza</th><th>Desviación Estándar</th></tr>
+            <tr><td>${mean}</td><td>${median}</td><td>${mode}</td><td>${variance}</td><td>${stdDev}</td></tr>
+        </table>
+    `;
+
+    // Histograma
+    const histogramCanvas = document.getElementById("histogram");
+    const ctxHistogram = histogramCanvas.getContext("2d");
+    ctxHistogram.clearRect(0, 0, histogramCanvas.width, histogramCanvas.height);
+
+    const bins = 5;
+    const min = Math.min(...data);
+    const max = Math.max(...data);
+    const binWidth = (max - min) / bins;
+    const frequencies = Array(bins).fill(0);
+
+    data.forEach(value => {
+        const binIndex = Math.min(Math.floor((value - min) / binWidth), bins - 1);
+        frequencies[binIndex]++;
+    });
+
+    const barWidth = histogramCanvas.width / bins;
+    const maxFrequency = Math.max(...frequencies);
+
+    frequencies.forEach((freq, index) => {
+        const barHeight = (freq / maxFrequency) * histogramCanvas.height;
+        ctxHistogram.fillStyle = "blue";
+        ctxHistogram.fillRect(index * barWidth, histogramCanvas.height - barHeight, barWidth - 2, barHeight);
+    });
+}
